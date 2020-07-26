@@ -21,4 +21,6 @@ result = evalpoly1x4r(2.0, packed)   # evaluate p(2)
 
 ## Benchmarks
 
-todo
+![real input](img/bm_plot_real.svg)
+
+![complex input](img/bm_plot_complex.svg)

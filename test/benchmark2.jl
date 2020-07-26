@@ -9,11 +9,9 @@ simd_times, ref_times = [], []
 
 for n in degrees
     poly1 = ntuple(x -> Float64(x), n)
-    c = poly1[end]
-    poly2 = poly1[1:end-1]
-    packed = packrepoly4(poly2)
+    packed = packpoly1x4r(poly1)
 
-    our = @benchmark simdrepoly4(z, $c, $packed) samples=NSAMPLES setup=(z=rand())
+    our = @benchmark evalpoly1x4r(z, $packed) samples=NSAMPLES setup=(z=rand())
     ref = @benchmark evalpoly(z, $poly1) samples=NSAMPLES setup=(z=rand())
     push!(simd_times, minimum(our).time)
     push!(ref_times, minimum(ref).time)
