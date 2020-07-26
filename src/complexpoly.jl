@@ -1,9 +1,9 @@
-function evalpolydiv(z::Complex{T}, p1::NTuple{N, T}, p2::NTuple{N, T}) where {N, T}
-    coeffs = pack_coeffs(p1, p2)
-    return evalpolydiv(z, coeffs)
-end
+#function evalpolydiv(z::Complex{T}, p1::NTuple{N, T}, p2::NTuple{N, T}) where {N, T}
+#    coeffs = pack_coeffs(p1, p2)
+#    return evalpolydiv(z, coeffs)
+#end
 
-@generated function evalpolydiv(z::Complex, poly::NTuple{N, Vec{4, T}}) where {N, T}
+@generated function evalpolydiv2x2c(z::Complex, poly::NTuple{N, Vec{4, T}}) where {N, T}
     innerloop = []
     for i = 2:N-2
         insns = quote
@@ -40,7 +40,7 @@ end
 end
 
 # pack two polynomial coefficients into SIMD vectors
-function pack_coeffs(p1::NTuple{N, T}, p2::NTuple{N, T}) where {N, T}
+function packpoly2x2c(p1::NTuple{N, T}, p2::NTuple{N, T}) where {N, T}
     arr = Array{Vec{4, T}, 1}(undef, 0)
     for i = 1:N
         # the index N-2 vector of coefficients is modified so that it can also be

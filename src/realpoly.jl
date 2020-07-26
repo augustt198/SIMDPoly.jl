@@ -1,10 +1,53 @@
 """
-    simdrepoly4
+    evalpoly1x2r
 
-Evaluate a polynomial at `x` given packed coefficients `poly` using
+Evaluate one polynomial at `x` given packed coefficients `poly` using
+Horner's method with two SIMD lanes.
+"""
+@generated function evalpoly1x2r(x::T, poly::NTuple{N, Vec{2, T}}) where {N, T<:Real}
+    insns = [:(accum = muladd(x2vec, accum, poly[$i])) for i in N-1:-1:1]
+    Expr(:block,
+        quote
+            x2 = x*x
+            x2vec = Vec{2, T}((x2, x2))
+            accum = poly[N]
+        end,
+        insns...,
+        quote
+            accum[1] + accum[2]*x
+        end
+    )
+end
+
+"""
+    packpoly1x2r
+
+Pack a tuple of polynomial coefficients into 2-wide SIMD vectors
+"""
+function packpoly1x2r(p::NTuple{N, T}) where {N, T<:Real}
+    parr = collect(p)
+    # pad with zeros so length is multiple of 2
+    addl = 1 - (N + 1) % 2
+    for i = 1:addl
+        push!(parr, zero(T))
+    end
+
+    m = (N + 1) ÷ 2
+    packedarr = Array{Vec{2, T}, 1}(undef, m)
+    for i = 1:m
+        ofs = (i-1)*2
+        packedarr[i] = Vec{2, T}((parr[1+ofs], parr[2+ofs]))
+    end
+    return tuple(packedarr...)
+end
+
+"""
+    evalpoly1x4r
+
+Evaluate one polynomial at `x` given packed coefficients `poly` using
 Horner's method with four SIMD lanes.
 """
-@generated function simdrepoly4(x::T, c::T, poly::NTuple{N, Vec{4, T}}) where {N, T<:Real}
+@generated function evalpoly1x4r(x::T, poly::NTuple{N, Vec{4, T}}) where {N, T<:Real}
     insns = [:(accum = muladd(x4vec, accum, poly[$i])) for i in N-1:-1:1]
     Expr(:block,
         quote
@@ -15,21 +58,17 @@ Horner's method with four SIMD lanes.
         end,
         insns...,
         quote
-            # modify x4vec to form (x, x², x³, x⁴) vector
-            setindex(x4vec, x, 1)
-            setindex(x4vec, x2, 2)
-            setindex(x4vec, x2*x, 3)
-            c + sum(x4vec * accum)
+            accum[1] + accum[2]*x + accum[3]*x2 + accum[4]*x2*x
         end
     )
 end
 
 """
-    packrepoly4
+    packpoly1x4r
 
 Pack a tuple of polynomial coefficients into 4-wide SIMD vectors
 """
-function packrepoly4(p::NTuple{N, T}) where {N, T<:Real}
+function packpoly1x4r(p::NTuple{N, T}) where {N, T<:Real}
     parr = collect(p)
     # pad with zeros so length is multiple of 4
     addl = 3 - (N + 3) % 4
