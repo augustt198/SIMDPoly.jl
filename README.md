@@ -19,6 +19,14 @@ packed = packpoly1x4r(coeffs)        # pack coefficients into SIMD vectors
 result = evalpoly1x4r(2.0, packed)   # evaluate p(2)
 ```
 
+Complex polynomial division:
+```julia
+poly1 = ntuple(x -> Float64(x), 30)         # p(x) = 1 + 2x^1 + ... + 30x^29
+poly2 = reverse(poly1)                      # q(x) = 30 + 29x^1 + ... + x^29
+packed = packpoly2x2c(poly1, poly2)
+result = evalpolydiv2x2c(2.0+2.0im, packed) # p(2+2i) / q(2+2i)
+```
+
 ## Benchmarks
 
 ![real input](img/bm_plot_real.svg)
