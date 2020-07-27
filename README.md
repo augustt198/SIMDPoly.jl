@@ -29,6 +29,8 @@ result = evalpolydiv2x2c(2.0+2.0im, packed) # p(2+2i) / q(2+2i)
 
 ## Benchmarks
 
+Note: these only measure evaluation time; the packed coefficients have been precomputed.
+
 ![real input](assets/bm_plot_real.svg)
 
 ![complex input](assets/bm_plot_complex.svg)
