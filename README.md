@@ -29,6 +29,6 @@ result = evalpolydiv2x2c(2.0+2.0im, packed) # p(2+2i) / q(2+2i)
 
 ## Benchmarks
 
-![real input](img/bm_plot_real.svg)
+![real input](assets/bm_plot_real.svg)
 
-![complex input](img/bm_plot_complex.svg)
+![complex input](assets/bm_plot_complex.svg)
